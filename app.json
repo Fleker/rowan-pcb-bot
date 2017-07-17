@@ -1,0 +1,8 @@
+{
+  "name": "Rowan PCB Bot",
+  "description": "A way to submit PCBs to the ECE Tech office",
+  "repository": "https://rowan-pcb-bot.herokuapp.com",
+  "logo": "http://node-js-sample.herokuapp.com/node.svg",
+  "keywords": ["node", "express", "static", "unzip", "nodemailer"],
+  "image": "heroku/nodejs"
+}

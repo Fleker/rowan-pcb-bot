@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/header.ejs %>
+</head>
+
+<body>
+
+  <% include ../partials/nav.ejs %>
+
+<div class="jumbotron text-center">
+  <div class="container">
+    <a href="/" class="lang-logo">
+      <img src="/lang-logo.png">
+    </a>
+      
+    <h1>Getting Started with Ordering PCBs</h1>
+    <p>If you're a Rowan student working on a PCB design for a class or clinic project, you can get them ordered through the ECE Tech Office.</p>
+  </div>
+</div>
+    
+<div class="container">
+  <div class="alert alert-info text-center" role="alert">
+    To learn about the specific requirements you need to follow in your PCB design, please view the <a href="https://confluence.rowan.edu/pages/viewpage.action?pageId=57933867&preview=/57933867/61429954/Rowan%20ECE%20Department%20Printed%20Circuit%20Board%20Design%20and%20Ordering%20Process%20with%20stencil.pdf" class="alert-link" target="_blank">Resource Center</a> documentation.
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-md-6">
+      <h3><span class="fa fa-info-circle"></span> How this service works</h3>
+      <ul>
+        <li>This website lets you upload your zipped up PCB design.</li>
+
+        <li>It automatically runs through many of the design specifications to verify that your design is valid.</li>
+        <li>If it passes, your design will be passed to the ECE staff via email.</li>
+        <li>If it doesn't, a list of errors will be pointed out and allow you to fix them.</li>
+      </ul>
+    </div>
+    <div class="col-md-6">
+      <h3><span class="fa fa-slack"></span> Slack</h3>
+      <ul>
+          <li>If you use Slack, you may want to use our bot instead!</li>
+          <li>In a channel or PM, upload your PCB zip and <code>@RowanPCBBot</code>.</li>
+          <li>The PCB Bot will process your zip and give you the same messages.</li>
+      </ul>
+    </div>
+  </div> <!-- row -->
+   <div class="alert alert-info text-center" role="alert" style='margin-top: 128px'>
+    You need to be logged in as a Rowan student or faculty member for this service to work. You can login using the Login link in the top-right corner. Submitting your design through this site does not guarantee the PCB will be ordered. Any more in-depth PCB issues may require conversation to occur in the email thread.
+  </div>
+
+    <div id='stats' style='margin-bottom: 608px; padding-top: 16px;'>
+        <h2>Stats</h2>
+        <em>Here are some statistics collected by the Rowan PCB Bot.</em>
+        <br><br>
+        <%
+            if (!sresult) {
+                console.warn("SResult not found");
+                var err = 0;
+                var suc = 0;
+            } else if (sresult.rows[0].id == '1') {
+                var err = sresult.rows[0].count;
+                var suc = sresult.rows[1].count;
+            } else {
+                var err = sresult.rows[1].count;
+                var suc = sresult.rows[0].count;
+            }
+        %>
+        <p>If every PCB that was uploaded had to be manually reviewed, it would've taken <%
+                var manual_review_time = 15; // Assume
+                var total = err;
+                var time = total * manual_review_time;
+            %> <strong><%= time %></strong> minutes! That's <strong><%= (time / (60 * 24 * 365)).toFixed(3) %></strong> years! That's time that the ECE technicians have saved by using this verification tool!</p>
+        <br><br>
+        <div class="col-md-4 col-sm-12">
+            <canvas id="failpie" width="100%" height="100%"></canvas>
+        </div>
+        <div class="col-md-4 col-sm-12">
+            <canvas id="commonerrs" width="100%" height="100%"></canvas>
+        </div>
+        <div class="col-md-4 col-sm-12">
+            <canvas id="timestamps" width="100%" height="100%"></canvas>
+        </div>
+        <script>
+            var failpieCtx = document.getElementById('failpie');
+            var failpieChart = new Chart(failpieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [
+                        "Valid Design",
+                        "Error Found"
+                    ],
+                    datasets: [
+                        {
+                            data: [<%- suc %>, <%- err %>],
+                            backgroundColor: [
+                                "#4CAF50",
+                                "#f44336"
+                            ],
+                            hoverBackgroundColor: [
+                                "#69F0AE",
+                                "#ff5252",
+                            ],
+                        }
+                    ]
+                }
+            });
+
+            <%  var timeblocks = [];
+                var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                if (tresult) {
+                    for (i in tresult.rows) {
+                        var d = new Date(parseInt(tresult.rows[i].timestamp));
+                        var key = months[d.getMonth()] + " " + (d.getYear() + 1900);
+                        if (timeblocks[key]) {
+                            timeblocks[key]++;
+                        } else {
+                            timeblocks[key] = 1;
+                        }
+                    }
+                }
+            %>
+            var timestampsCtx = document.getElementById('timestamps');
+            var timestampsChart = new Chart(timestampsCtx, {
+                type: 'line',
+                data: {
+                    labels: [<% for (i in Object.keys(timeblocks)) { %> "<%- Object.keys(timeblocks)[i] %>", <% } %>],
+                    datasets: [{
+                        label: 'Upload Date',
+                        data: [<%= Object.values(timeblocks) %>],
+                        backgroundColor: "#009688",
+                        pointBackgroundColor: "#00695C",
+                        pointHoverBackgroundColor: "#64FFDA"
+                    }]
+                }
+            });
+
+            var commonerrsCtx = document.getElementById('commonerrs');
+
+            <%
+            // Material Colors 500
+            var bgColors =      ["#f44336", "#E91E63", "#9C27B0", "#673AB7", "#3F51B5", "#2196F3", "#00BCD4", "#009688", "#4CAF50", "#FFC107", "#FF9800", "#FF5722", "#607D8B"];
+            // Material Colors 800
+            var borderColors =  ["#c62828", "#AD1457", "#6A1B9A", "#4527A0", "#1565C0", "#00838F", "#00838F", "#00695C", "#2E7D32", "#FF8F00", "#EF6C00", "#D84315", "#37474F"];
+            // Material Colors A200
+            var hoverColors =   ["#ff5252", "#FF4081", "#E040FB", "#7C4DFF", "#536DFE", "#448AFF", "#18FFFF", "#64FFDA", "#69F0AE", "#FFD740", "#FFAB40", "#FF6E40", "#B0BEC5"];
+            // Material Colors A700
+            var hborderColors = ["#d50000", "#C51162", "#AA00FF", "#6200EA", "#304FFE", "#2962FF", "#00B8D4", "#00BFA5", "#00C853", "#FFAB00", "#FF6D00", "#DD2C00", "#455A64"];
+            console.log(eresult);
+            if (eresult && eresult.rows) {
+            %>
+
+                var commonerrsChart = new Chart(commonerrsCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: [<% for (i in eresult.rows) { %> "<%- eresult.rows[i].errormsg %>", <% } %>],
+                        datasets: [{
+                            label: 'Count of Errors',
+                            backgroundColor: [<% for (i in eresult.rows) { %> "<%- bgColors[i % bgColors.length] %>", <% } %>],
+                            borderColor: [<% for (i in eresult.rows) { %> "<%- borderColors[i % borderColors.length] %>", <% } %>],
+                            hoverBackgroundColor: [<% for (i in eresult.rows) { %> "<%- hoverColors[i % hoverColors.length] %>", <% } %>],
+                            hoverBorderColor: [<% for (i in eresult.rows) { %> "<%- hborderColors[i % hborderColors.length] %>", <% } %>],
+                            hoverBorderWidth: 2,
+                            data: [<% for (i in eresult.rows) { %> <%- eresult.rows[i].count %>, <% } %>]
+                        }]
+                    }
+                });
+            <%
+            }
+            %>
+        </script>
+    </div>
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/header.ejs %>
+</head>
+
+<body>
+
+  <% include ../partials/nav.ejs %>
+
+    <form ref='uploadForm' 
+          id='uploadForm'
+          action='/upload'
+          method='post'
+          style='display:none;'
+          class='page_content'
+          encType="multipart/form-data">
+        <h2>Upload your PCB Design</h2>
+        <p>Make sure it meets the requirements outlined in <a href='https://confluence.rowan.edu/pages/viewpage.action?pageId=57933867&preview=/57933867/61429954/Rowan%20ECE%20Department%20Printed%20Circuit%20Board%20Design%20and%20Ordering%20Process%20with%20stencil.pdf' target="_blank">this document</a>.</p>
+        <p>This service will process your PCB and determine whether it actually meets the requirements.</p>
+        <input type="file" name="zip_upload" required />
+        <input type='submit' value='Upload!' />
+        <input type='hidden' name='user_email' required />
+    </form>
+
+    <div id='invalidUser' class='page_content' style='display:none;'>
+        <h2>This page is inaccessible</h2>
+        <p>The Rowan PCB Bot is currently only available for students and faculty at Rowan University. You can login using your Rowan account by clicking on the "Login" button in the top-right corner.</p>
+    </div>
+
+    <script>
+        getUserEmail(function(email) {
+            $('input[name="user_email"]').val(email);
+            if (!validEmail(email)) {
+                $('#uploadForm').remove();
+                $('#invalidUser').show();
+            } else {
+                $('#uploadForm').show();
+                $('#invalidUser').remove();
+            }
+        });
+    </script>
+  </body>
+</html>

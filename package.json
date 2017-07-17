@@ -1,0 +1,39 @@
+{
+  "name": "rowan-pcb-bot",
+  "version": "0.1.1",
+  "description": "A PCB validation and ordering tool for Rowan University students",
+  "engines": {
+    "node": "7.10.1"
+  },
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "chart.js": "^2.5.0",
+    "ejs": "2.4.1",
+    "express": "4.13.3",
+    "express-fileupload": "^0.1.1",
+    "nodemailer": "^4.0.0",
+    "pg": "6.1.5",
+    "body-parser": "x",
+    "request": "x",
+    "http": "x",
+    "https": "x",
+    "unzip2": "x",
+    "fs": "x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://rowan-pcb-bot.herokuapp.com"
+  },
+  "keywords": [
+    "node",
+    "heroku",
+    "express",
+    "rowan",
+    "electrical and computer engineering",
+    "pcbs"
+  ],
+  "license": "Apache 2"
+}
